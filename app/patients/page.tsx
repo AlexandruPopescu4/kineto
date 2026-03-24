@@ -67,12 +67,12 @@ export default function PatientsPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
-            <p className="text-gray-600 mt-2">Manage and monitor your patient roster</p>
+            <h1 className="text-3xl font-bold text-gray-900">Pacienți</h1>
+            <p className="text-gray-600 mt-2">Gestionați și monitorizați pacienții</p>
           </div>
           <Button className="mt-4 sm:mt-0">
             <Plus className="mr-2 h-4 w-4" />
-            Add New Patient
+            Adaugă Pacient
           </Button>
         </div>
 
@@ -86,7 +86,7 @@ export default function PatientsPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search patients by name or condition..."
+                    placeholder="Caută pacienți după nume sau afecțiune..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -108,7 +108,7 @@ export default function PatientsPage() {
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
-                      {status === 'all' ? 'All Patients' : 
+                      {status === 'all' ? 'Toți Pacienții' : 
                        status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
                     </button>
                   ))}
@@ -143,7 +143,7 @@ export default function PatientsPage() {
                 <CardContent className="space-y-4">
                   {/* Recovery Stage */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Recovery Stage</span>
+                    <span className="text-sm text-gray-600">Etapa Recuperării</span>
                     <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getRecoveryStageColor(patient.recoveryStage)}`}>
                       {patient.recoveryStage.charAt(0).toUpperCase() + patient.recoveryStage.slice(1)}
                     </span>
@@ -151,7 +151,7 @@ export default function PatientsPage() {
 
                   {/* Adherence Rate */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Adherence</span>
+                    <span className="text-sm text-gray-600">Aderență</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-24 bg-gray-200 rounded-full h-2">
                         <div 
@@ -170,7 +170,7 @@ export default function PatientsPage() {
 
                   {/* Pain Level */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Pain Level</span>
+                    <span className="text-sm text-gray-600">Nivelul Durerii</span>
                     <div className="flex items-center space-x-2">
                       <span className="text-sm font-medium">{patient.painLevel}/10</span>
                       {getPainTrendIcon(patient.painTrend)}
@@ -179,7 +179,7 @@ export default function PatientsPage() {
 
                   {/* Next Session */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Next Session</span>
+                    <span className="text-sm text-gray-600">Următoarea Ședință</span>
                     <div className="flex items-center space-x-1 text-sm">
                       <Calendar className="h-4 w-4 text-gray-400" />
                       <span>{patient.nextSession}</span>
@@ -189,13 +189,13 @@ export default function PatientsPage() {
                   {/* Last Activity */}
                   <div className="pt-2 border-t border-gray-100">
                     <p className="text-xs text-gray-500">
-                      Last activity: {patient.lastActivity}
+                      Ultima activitate: {patient.lastActivity}
                     </p>
                   </div>
 
                   {/* View Profile Button */}
                   <Button variant="outline" className="w-full">
-                    View Profile
+                    Vezi Profil
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 </CardContent>
@@ -209,17 +209,17 @@ export default function PatientsPage() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <User className="h-8 w-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No patients found</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Nu s-au găsit pacienți</h3>
               <p className="text-gray-600 mb-4">
                 {searchTerm || filterStatus !== 'all' 
-                  ? 'Try adjusting your search or filters'
-                  : 'Get started by adding your first patient'
+                  ? 'Încercați să ajustați căutarea sau filtrele'
+                  : 'Începeți prin a adăuga primul pacient'
                 }
               </p>
               {!searchTerm && filterStatus === 'all' && (
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Your First Patient
+                  Adaugă Primul Pacient
                 </Button>
               )}
             </CardContent>
@@ -229,7 +229,7 @@ export default function PatientsPage() {
         {/* Summary Stats */}
         <Card className="border-0 shadow-lg">
           <CardHeader>
-            <CardTitle>Summary Statistics</CardTitle>
+            <CardTitle>Statistici Sumar</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -237,25 +237,25 @@ export default function PatientsPage() {
                 <div className="text-2xl font-bold text-gray-900">
                   {mockPatients.filter(p => p.status === 'active').length}
                 </div>
-                <p className="text-sm text-gray-600">Active Patients</p>
+                <p className="text-sm text-gray-600">Pacienți Activi</p>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600">
                   {mockPatients.filter(p => p.status === 'at-risk').length}
                 </div>
-                <p className="text-sm text-gray-600">At Risk</p>
+                <p className="text-sm text-gray-600">La Risc</p>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
                   {Math.round(mockPatients.reduce((acc, p) => acc + p.adherenceRate, 0) / mockPatients.length)}%
                 </div>
-                <p className="text-sm text-gray-600">Avg Adherence</p>
+                <p className="text-sm text-gray-600">Aderență Medie</p>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">
                   {mockPatients.filter(p => p.painTrend === 'improving').length}
                 </div>
-                <p className="text-sm text-gray-600">Improving</p>
+                <p className="text-sm text-gray-600">În Îmbunătățire</p>
               </div>
             </div>
           </CardContent>

@@ -53,11 +53,11 @@ export default function LoginPage() {
             </div>
             
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Transform Patient Recovery with Smart Monitoring
+              Transformarea Recuperării Pacienților prin Monitorizare Inteligentă
             </h1>
             
             <p className="text-xl text-gray-600 mb-8">
-              The modern physiotherapy platform that connects therapists and patients like never before.
+              Platforma modernă de kinetoterapie care conectează terapeuții și pacienții ca niciodată înainte.
             </p>
             
             <div className="grid grid-cols-2 gap-4 text-left">
@@ -65,16 +65,16 @@ export default function LoginPage() {
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
                   <Activity className="h-5 w-5 text-blue-600" />
                 </div>
-                <h3 className="font-semibold mb-1">Track Progress</h3>
-                <p className="text-sm text-gray-600">Monitor patient adherence and recovery in real-time</p>
+                <h3 className="font-semibold mb-1">Monitorizare Progres</h3>
+                <p className="text-sm text-gray-600">Monitorizați aderența pacienților și recuperarea în timp real</p>
               </div>
               
               <div className="bg-white p-4 rounded-xl shadow-sm">
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-3">
                   <Lock className="h-5 w-5 text-green-600" />
                 </div>
-                <h3 className="font-semibold mb-1">Secure & HIPAA</h3>
-                <p className="text-sm text-gray-600">Your data is protected with enterprise-grade security</p>
+                <h3 className="font-semibold mb-1">Securitate & GDPR</h3>
+                <p className="text-sm text-gray-600">Datele dumneavoastră sunt protejate cu securitate de nivel enterprise</p>
               </div>
             </div>
           </div>
@@ -91,9 +91,9 @@ export default function LoginPage() {
                 <span className="text-xl font-semibold text-gray-900">KinetoFlow</span>
               </div>
               
-              <CardTitle className="text-2xl">Welcome Back</CardTitle>
+              <CardTitle className="text-2xl">Bine Ați Venit</CardTitle>
               <CardDescription>
-                Sign in to your account to continue
+                Conectați-vă la contul dumneavoastră pentru a continua
               </CardDescription>
             </CardHeader>
             
@@ -101,7 +101,7 @@ export default function LoginPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
+                    Adresă Email
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -111,7 +111,7 @@ export default function LoginPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      placeholder="Enter your email"
+                      placeholder="Introduceți emailul"
                       required
                     />
                   </div>
@@ -119,7 +119,7 @@ export default function LoginPage() {
                 
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
+                    Parolă
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -129,7 +129,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      placeholder="Enter your password"
+                      placeholder="Introduceți parola"
                       required
                     />
                     <button
@@ -148,10 +148,10 @@ export default function LoginPage() {
                       type="checkbox"
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
-                    <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                    <span className="ml-2 text-sm text-gray-600">Ține-mă minte</span>
                   </label>
                   <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
-                    Forgot password?
+                    Ai uitat parola?
                   </a>
                 </div>
                 
@@ -160,7 +160,7 @@ export default function LoginPage() {
                   className="w-full py-3 text-lg"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Signing in...' : 'Sign In'}
+                  {isLoading ? 'Se conectează...' : 'Conectare'}
                 </Button>
               </form>
               
@@ -169,7 +169,7 @@ export default function LoginPage() {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500">Or try a demo account</span>
+                  <span className="px-4 bg-white text-gray-500">Sau încercați un cont demo</span>
                 </div>
               </div>
               
@@ -180,7 +180,7 @@ export default function LoginPage() {
                   onClick={() => handleDemoLogin('therapist')}
                   disabled={isLoading}
                 >
-                  Login as Therapist
+                  Conectare ca Terapeut
                 </Button>
                 
                 <Button
@@ -189,16 +189,19 @@ export default function LoginPage() {
                   onClick={() => handleDemoLogin('patient')}
                   disabled={isLoading}
                 >
-                  Login as Patient
+                  Conectare ca Pacient
                 </Button>
               </div>
               
               <div className="text-center">
                 <p className="text-sm text-gray-600">
-                  Don't have an account?{' '}
+                  Nu aveți un cont?{' '}
                   <Link href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-                    Sign up for free
+                    Înregistrați-vă gratuit
                   </Link>
+                </p>
+                <p className="mt-4 text-xs text-gray-500">
+                  Realizat de Otilia Stratu în cadrul proiectului ODA
                 </p>
               </div>
             </CardContent>

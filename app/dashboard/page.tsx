@@ -31,60 +31,60 @@ export default function DashboardPage() {
       <div className="space-y-6">
         {/* Page Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">Welcome back! Here's an overview of your practice.</p>
+          <h1 className="text-3xl font-bold text-gray-900">Panou de Control</h1>
+          <p className="text-gray-600 mt-2">Bine ați revenit! Iată o imagine de ansamblu a practicii dumneavoastră.</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Active Patients</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Pacienți Activi</CardTitle>
               <Users className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">{mockDashboardStats.activePatients}</div>
               <p className="text-xs text-gray-600 mt-1">
-                <span className="text-green-600">+3</span> from last month
+                <span className="text-green-600">+3</span> față de luna trecută
               </p>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Adherence Rate</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Rată Aderență</CardTitle>
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">{mockDashboardStats.adherenceRate}%</div>
               <p className="text-xs text-gray-600 mt-1">
-                <span className="text-green-600">+5%</span> from last week
+                <span className="text-green-600">+5%</span> față de săptămâna trecută
               </p>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">At-Risk Patients</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Pacienți la Risc</CardTitle>
               <AlertTriangle className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">{mockDashboardStats.atRiskPatients}</div>
               <p className="text-xs text-gray-600 mt-1">
-                <span className="text-orange-600">Requires attention</span>
+                <span className="text-orange-600">Necesită atenție</span>
               </p>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Avg Pain Reduction</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Reducere Medie a Durerii</CardTitle>
               <Activity className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">{mockDashboardStats.averagePainReduction}</div>
               <p className="text-xs text-gray-600 mt-1">
-                <span className="text-green-600">-0.8</span> points this month
+                <span className="text-green-600">-0.8</span> puncte în luna aceasta
               </p>
             </CardContent>
           </Card>
@@ -95,8 +95,8 @@ export default function DashboardPage() {
           {/* Adherence Chart */}
           <Card className="border-0 shadow-lg lg:col-span-2">
             <CardHeader>
-              <CardTitle>Weekly Adherence Trend</CardTitle>
-              <CardDescription>Patient exercise completion rate over the past week</CardDescription>
+              <CardTitle>Evoluția Săptămânală a Aderenței</CardTitle>
+              <CardDescription>Rata de completare a exercițiilor în ultima săptămână</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -126,8 +126,8 @@ export default function DashboardPage() {
           {/* Recent Activity */}
           <Card className="border-0 shadow-lg">
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Latest patient updates</CardDescription>
+              <CardTitle>Activitate Recentă</CardTitle>
+              <CardDescription>Actualizări recente ale pacienților</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {mockRecentActivity.map((activity) => (
@@ -154,11 +154,11 @@ export default function DashboardPage() {
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Upcoming Sessions</CardTitle>
-                <CardDescription>Your scheduled appointments</CardDescription>
+                <CardTitle>Ședințe Programate</CardTitle>
+                <CardDescription>Programările viitoare</CardDescription>
               </div>
               <Button variant="ghost" size="sm">
-                View All
+                Vezi Toate
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </CardHeader>
@@ -187,8 +187,8 @@ export default function DashboardPage() {
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Alerts & Notifications</CardTitle>
-                <CardDescription>Important updates requiring attention</CardDescription>
+                <CardTitle>Alerte și Notificări</CardTitle>
+                <CardDescription>Actualizări importante care necesită atenție</CardDescription>
               </div>
               <Button variant="ghost" size="sm">
                 <Bell className="h-4 w-4" />
@@ -228,26 +228,26 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <Card className="border-0 shadow-lg">
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Frequently used tasks</CardDescription>
+            <CardTitle>Acțiuni Rapide</CardTitle>
+            <CardDescription>Sarcini utilizate frecvent</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Button variant="outline" className="h-20 flex-col space-y-2">
                 <Users className="h-6 w-6" />
-                <span className="text-sm">Add Patient</span>
+                <span className="text-sm">Adaugă Pacient</span>
               </Button>
               <Button variant="outline" className="h-20 flex-col space-y-2">
                 <Calendar className="h-6 w-6" />
-                <span className="text-sm">Schedule Session</span>
+                <span className="text-sm">Programează Ședință</span>
               </Button>
               <Button variant="outline" className="h-20 flex-col space-y-2">
                 <Activity className="h-6 w-6" />
-                <span className="text-sm">Create Program</span>
+                <span className="text-sm">Creează Program</span>
               </Button>
               <Button variant="outline" className="h-20 flex-col space-y-2">
                 <Clock className="h-6 w-6" />
-                <span className="text-sm">View Reports</span>
+                <span className="text-sm">Vezi Rapoarte</span>
               </Button>
             </div>
           </CardContent>

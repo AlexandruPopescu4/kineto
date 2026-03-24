@@ -15,13 +15,13 @@ import {
 } from 'lucide-react';
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Patients', href: '/patients', icon: Users },
-  { name: 'Appointments', href: '/appointments', icon: Calendar },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Reports', href: '/reports', icon: FileText },
-  { name: 'Activity', href: '/activity', icon: Activity },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Panou Control', href: '/dashboard', icon: Home },
+  { name: 'Pacienți', href: '/patients', icon: Users },
+  { name: 'Programări', href: '/appointments', icon: Calendar },
+  { name: 'Analize', href: '/analytics', icon: BarChart3 },
+  { name: 'Rapoarte', href: '/reports', icon: FileText },
+  { name: 'Activitate', href: '/activity', icon: Activity },
+  { name: 'Setări', href: '/settings', icon: Settings },
 ];
 
 export function Sidebar() {
@@ -67,7 +67,7 @@ export function Sidebar() {
       <div className="border-t border-gray-200 p-3">
         <button className="flex w-full items-center rounded-xl px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900">
           <LogOut className="mr-3 h-5 w-5 text-gray-400" />
-          Sign out
+          Delogare
         </button>
       </div>
     </div>

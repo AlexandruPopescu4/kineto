@@ -11,7 +11,7 @@ export function Header() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search patients, exercises..."
+            placeholder="Caută pacienți, exerciții..."
             className="w-96 rounded-xl border border-gray-300 bg-gray-50 pl-10 pr-4 py-2 text-sm placeholder-gray-500 focus:border-blue-500 focus:bg-white focus:outline-none"
           />
         </div>
@@ -25,8 +25,8 @@ export function Header() {
         
         <div className="flex items-center space-x-3">
           <div className="text-right">
-            <p className="text-sm font-medium text-gray-900">Dr. Sarah Mitchell</p>
-            <p className="text-xs text-gray-500">Physical Therapist</p>
+            <p className="text-sm font-medium text-gray-900">Dr. Ana Popescu</p>
+            <p className="text-xs text-gray-500">Kinetoterapeut</p>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white">
             <User className="h-5 w-5" />

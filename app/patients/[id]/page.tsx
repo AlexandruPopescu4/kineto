@@ -44,22 +44,22 @@ const mockAdherenceData = [
 ];
 
 const mockMilestones = [
-  { id: '1', title: 'Initial Assessment', date: '2024-02-15', completed: true, description: 'Completed initial evaluation and baseline measurements' },
-  { id: '2', title: 'Pain Reduction Goal', date: '2024-03-01', completed: true, description: 'Achieved 50% pain reduction from baseline' },
-  { id: '3', title: 'Range of Motion Target', date: '2024-03-15', completed: false, description: 'Restore full range of motion in shoulder' },
-  { id: '4', title: 'Strength Goal', date: '2024-04-01', completed: false, description: 'Regain 90% of pre-injury strength' },
+  { id: '1', title: 'Evaluare Inițială', date: '2024-02-15', completed: true, description: 'Evaluare inițială completată și măsurători de bază' },
+  { id: '2', title: 'Obiectiv Reducere Durere', date: '2024-03-01', completed: true, description: 'Obținut 50% reducere a durerii față de nivelul de bază' },
+  { id: '3', title: 'Țintă Mobilitate Articulară', date: '2024-03-15', completed: false, description: 'Restaurare mobilitate completă a umărului' },
+  { id: '4', title: 'Obiectiv Forță', date: '2024-04-01', completed: false, description: 'Recuperare 90% din forța pre-accidentare' },
 ];
 
 const mockExerciseProgram = [
-  { id: '1', name: 'Shoulder Flexion Exercises', sets: 3, reps: 10, frequency: 'Daily', difficulty: 'Medium' },
-  { id: '2', name: 'External Rotation', sets: 3, reps: 12, frequency: 'Every other day', difficulty: 'Easy' },
-  { id: '3', name: 'Scapular Stabilization', sets: 2, reps: 15, frequency: 'Daily', difficulty: 'Hard' },
+  { id: '1', name: 'Exerciții Flexie Umăr', sets: 3, reps: 10, frequency: 'Zilnic', difficulty: 'Mediu' },
+  { id: '2', name: 'Rotație Externă', sets: 3, reps: 12, frequency: 'O zi da, o zi nu', difficulty: 'Ușor' },
+  { id: '3', name: 'Stabilizare Scapulară', sets: 2, reps: 15, frequency: 'Zilnic', difficulty: 'Greu' },
 ];
 
 const mockTherapistNotes = [
-  { id: '1', date: '2024-03-25', note: 'Patient showing excellent progress with shoulder mobility. Pain levels consistently decreasing. Recommend continuing current program with slight increase in resistance.', therapist: 'Dr. Sarah Mitchell' },
-  { id: '2', date: '2024-03-20', note: 'Patient reported increased confidence in daily activities. Adherence has been excellent this week. No complaints of pain during exercises.', therapist: 'Dr. Sarah Mitchell' },
-  { id: '3', date: '2024-03-15', note: 'Completed milestone assessment. Patient has achieved 50% pain reduction goal. Ready to advance to next phase of rehabilitation.', therapist: 'Dr. Sarah Mitchell' },
+  { id: '1', date: '2024-03-25', note: 'Pacientul progresează excelent cu mobilitatea umărului. Nivelurile de durere scad constant. Recomand continuarea programului actual cu ușoară creștere a rezistenței.', therapist: 'Dr. Ana Popescu' },
+  { id: '2', date: '2024-03-20', note: 'Pacientul raportează încredere crescută în activitățile zilnice. Aderența a fost excelentă săptămâna aceasta. Fără plângeri de durere în timpul exercițiilor.', therapist: 'Dr. Ana Popescu' },
+  { id: '3', date: '2024-03-15', note: 'Evaluare obiectiv completată. Pacientul a atins obiectivul de 50% reducere a durerii. Pregătit pentru avansarea la următoarea fază de reabilitare.', therapist: 'Dr. Ana Popescu' },
 ];
 
 export default function PatientProfilePage() {
@@ -67,10 +67,10 @@ export default function PatientProfilePage() {
   const patient = mockPatients[0]; // Using first patient as example
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: Activity },
-    { id: 'program', label: 'Exercise Program', icon: Target },
-    { id: 'progress', label: 'Progress', icon: TrendingUp },
-    { id: 'notes', label: 'Notes', icon: FileText },
+    { id: 'overview', label: 'Prezentare Generală', icon: Activity },
+    { id: 'program', label: 'Program Exerciții', icon: Target },
+    { id: 'progress', label: 'Progres', icon: TrendingUp },
+    { id: 'notes', label: 'Note', icon: FileText },
   ];
 
   const getStatusColor = (status: string) => {
@@ -111,7 +111,7 @@ export default function PatientProfilePage() {
                       {patient.status.replace('-', ' ')}
                     </span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRecoveryStageColor(patient.recoveryStage)}`}>
-                      {patient.recoveryStage.charAt(0).toUpperCase() + patient.recoveryStage.slice(1)} Recovery
+                      {patient.recoveryStage.charAt(0).toUpperCase() + patient.recoveryStage.slice(1)} - Etapa Recuperării
                     </span>
                   </div>
                 </div>
@@ -119,12 +119,12 @@ export default function PatientProfilePage() {
               
               <div className="flex items-center space-x-4">
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">Next Session</p>
+                  <p className="text-sm text-gray-600">Următoarea Programare</p>
                   <p className="font-medium">{patient.nextSession}</p>
                 </div>
                 <Button>
                   <Edit className="mr-2 h-4 w-4" />
-                  Edit Profile
+                  Editează Pacient
                 </Button>
               </div>
             </div>
@@ -135,7 +135,7 @@ export default function PatientProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Adherence Rate</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Rată Aderență</CardTitle>
               <Activity className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
@@ -151,7 +151,7 @@ export default function PatientProfilePage() {
 
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Current Pain Level</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Nivel Actual Durere</CardTitle>
               {patient.painTrend === 'improving' ? (
                 <TrendingUp className="h-4 w-4 text-green-600" />
               ) : patient.painTrend === 'worsening' ? (
@@ -163,31 +163,31 @@ export default function PatientProfilePage() {
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">{patient.painLevel}/10</div>
               <p className="text-xs text-gray-600 mt-1">
-                {patient.painTrend === 'improving' ? 'Improving' : 
-                 patient.painTrend === 'worsening' ? 'Worsening' : 'Stable'}
+                {patient.painTrend === 'improving' ? 'În Îmbunătățire' : 
+                 patient.painTrend === 'worsening' ? 'În Înrăutățire' : 'Stabil'}
               </p>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Days in Program</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Zile în Program</CardTitle>
               <Calendar className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">39</div>
-              <p className="text-xs text-gray-600 mt-1">Since {patient.startDate}</p>
+              <p className="text-xs text-gray-600 mt-1">De la {patient.startDate}</p>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Sessions Completed</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Ședințe Completate</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">12</div>
-              <p className="text-xs text-gray-600 mt-1">Total sessions</p>
+              <p className="text-xs text-gray-600 mt-1">Total ședințe</p>
             </CardContent>
           </Card>
         </div>
@@ -219,8 +219,8 @@ export default function PatientProfilePage() {
               {/* Recent Progress */}
               <Card className="border-0 shadow-lg">
                 <CardHeader>
-                  <CardTitle>Pain History</CardTitle>
-                  <CardDescription>Pain levels over the past 6 weeks</CardDescription>
+                  <CardTitle>Istoric Durere</CardTitle>
+                  <CardDescription>Nivelurile de durere în ultimele 6 săptămâni</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={250}>
