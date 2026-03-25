@@ -1,490 +1,268 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { mockPatients } from '@/mock-data/patients';
-import { 
-  User, 
-  Calendar, 
-  TrendingUp, 
-  TrendingDown, 
-  Minus,
-  Activity,
-  FileText,
-  Target,
-  Clock,
-  Award,
-  AlertCircle,
-  CheckCircle,
-  Play,
-  Edit
-} from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { useAuth } from '@/contexts/auth-context'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Activity, ArrowLeft, Calendar, Edit, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { createSupabaseClient } from '@/lib/supabase'
 
-// Mock additional data for patient profile
-const mockPainHistory = [
-  { date: 'Week 1', pain: 8 },
-  { date: 'Week 2', pain: 7 },
-  { date: 'Week 3', pain: 6 },
-  { date: 'Week 4', pain: 5 },
-  { date: 'Week 5', pain: 4 },
-  { date: 'Week 6', pain: 4 },
-];
+export const dynamic = 'force-dynamic'
 
-const mockAdherenceData = [
-  { day: 'Mon', completed: true },
-  { day: 'Tue', completed: true },
-  { day: 'Wed', completed: false },
-  { day: 'Thu', completed: true },
-  { day: 'Fri', completed: true },
-  { day: 'Sat', completed: false },
-  { day: 'Sun', completed: true },
-];
+interface Patient {
+  id: string
+  name: string
+  created_at: string
+  updated_at: string
+}
 
-const mockMilestones = [
-  { id: '1', title: 'Evaluare Inițială', date: '2024-02-15', completed: true, description: 'Evaluare inițială completată și măsurători de bază' },
-  { id: '2', title: 'Obiectiv Reducere Durere', date: '2024-03-01', completed: true, description: 'Obținut 50% reducere a durerii față de nivelul de bază' },
-  { id: '3', title: 'Țintă Mobilitate Articulară', date: '2024-03-15', completed: false, description: 'Restaurare mobilitate completă a umărului' },
-  { id: '4', title: 'Obiectiv Forță', date: '2024-04-01', completed: false, description: 'Recuperare 90% din forța pre-accidentare' },
-];
+export default function PatientDetailPage({ params }: { params: { id: string } }) {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+  const [patient, setPatient] = useState<Patient | null>(null)
+  const [patientLoading, setPatientLoading] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const supabase = createSupabaseClient()
 
-const mockExerciseProgram = [
-  { id: '1', name: 'Exerciții Flexie Umăr', sets: 3, reps: 10, frequency: 'Zilnic', difficulty: 'Mediu' },
-  { id: '2', name: 'Rotație Externă', sets: 3, reps: 12, frequency: 'O zi da, o zi nu', difficulty: 'Ușor' },
-  { id: '3', name: 'Stabilizare Scapulară', sets: 2, reps: 15, frequency: 'Zilnic', difficulty: 'Greu' },
-];
-
-const mockTherapistNotes = [
-  { id: '1', date: '2024-03-25', note: 'Pacientul progresează excelent cu mobilitatea umărului. Nivelurile de durere scad constant. Recomand continuarea programului actual cu ușoară creștere a rezistenței.', therapist: 'Dr. Ana Popescu' },
-  { id: '2', date: '2024-03-20', note: 'Pacientul raportează încredere crescută în activitățile zilnice. Aderența a fost excelentă săptămâna aceasta. Fără plângeri de durere în timpul exercițiilor.', therapist: 'Dr. Ana Popescu' },
-  { id: '3', date: '2024-03-15', note: 'Evaluare obiectiv completată. Pacientul a atins obiectivul de 50% reducere a durerii. Pregătit pentru avansarea la următoarea fază de reabilitare.', therapist: 'Dr. Ana Popescu' },
-];
-
-export default function PatientProfilePage() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const patient = mockPatients[0]; // Using first patient as example
-
-  const tabs = [
-    { id: 'overview', label: 'Prezentare Generală', icon: Activity },
-    { id: 'program', label: 'Program Exerciții', icon: Target },
-    { id: 'progress', label: 'Progres', icon: TrendingUp },
-    { id: 'notes', label: 'Note', icon: FileText },
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'at-risk': return 'bg-orange-100 text-orange-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+  useEffect(() => {
+    if (!user && !loading) {
+      router.push('/login')
     }
-  };
+  }, [user, loading, router])
 
-  const getRecoveryStageColor = (stage: string) => {
-    switch (stage) {
-      case 'early': return 'bg-purple-100 text-purple-800';
-      case 'mid': return 'bg-blue-100 text-blue-800';
-      case 'advanced': return 'bg-green-100 text-green-800';
-      case 'maintenance': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+  useEffect(() => {
+    if (user && params.id) {
+      fetchPatient()
     }
-  };
+  }, [user, params.id])
 
-  return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Patient Header */}
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center space-x-4 mb-4 md:mb-0">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                  <User className="h-8 w-8 text-blue-600" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{patient.name}</h1>
-                  <p className="text-gray-600">{patient.condition}</p>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(patient.status)}`}>
-                      {patient.status.replace('-', ' ')}
-                    </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRecoveryStageColor(patient.recoveryStage)}`}>
-                      {patient.recoveryStage.charAt(0).toUpperCase() + patient.recoveryStage.slice(1)} - Etapa Recuperării
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">Următoarea Programare</p>
-                  <p className="font-medium">{patient.nextSession}</p>
-                </div>
-                <Button>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Editează Pacient
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+  const fetchPatient = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('id', params.id)
+        .eq('user_id', user?.id)
+        .single()
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Rată Aderență</CardTitle>
-              <Activity className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{patient.adherenceRate}%</div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full"
-                  style={{ width: `${patient.adherenceRate}%` }}
-                ></div>
-              </div>
-            </CardContent>
-          </Card>
+      if (error) {
+        console.error('Error fetching patient:', error)
+        router.push('/patients')
+      } else {
+        setPatient(data)
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      router.push('/patients')
+    } finally {
+      setPatientLoading(false)
+    }
+  }
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Nivel Actual Durere</CardTitle>
-              {patient.painTrend === 'improving' ? (
-                <TrendingUp className="h-4 w-4 text-green-600" />
-              ) : patient.painTrend === 'worsening' ? (
-                <TrendingDown className="h-4 w-4 text-red-600" />
-              ) : (
-                <Minus className="h-4 w-4 text-gray-600" />
-              )}
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{patient.painLevel}/10</div>
-              <p className="text-xs text-gray-600 mt-1">
-                {patient.painTrend === 'improving' ? 'În Îmbunătățire' : 
-                 patient.painTrend === 'worsening' ? 'În Înrăutățire' : 'Stabil'}
-              </p>
-            </CardContent>
-          </Card>
+  const handleDelete = async () => {
+    if (!patient) return
+    
+    if (!confirm(`Sunteți sigur că doriți să ștergeți pacientul "${patient.name}"?`)) {
+      return
+    }
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Zile în Program</CardTitle>
-              <Calendar className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">39</div>
-              <p className="text-xs text-gray-600 mt-1">De la {patient.startDate}</p>
-            </CardContent>
-          </Card>
+    setIsDeleting(true)
+    
+    try {
+      const { error } = await supabase
+        .from('patients')
+        .delete()
+        .eq('id', patient.id)
+        .eq('user_id', user?.id)
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Ședințe Completate</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">12</div>
-              <p className="text-xs text-gray-600 mt-1">Total ședințe</p>
-            </CardContent>
-          </Card>
-        </div>
+      if (error) {
+        console.error('Error deleting patient:', error)
+        alert('A apărut o eroare la ștergerea pacientului')
+      } else {
+        router.push('/patients')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('A apărut o eroare la ștergerea pacientului')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
-        {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <tab.icon className="h-4 w-4" />
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Tab Content */}
-        <div className="space-y-6">
-          {activeTab === 'overview' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Recent Progress */}
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle>Istoric Durere</CardTitle>
-                  <CardDescription>Nivelurile de durere în ultimele 6 săptămâni</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={mockPainHistory}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="date" stroke="#6b7280" />
-                      <YAxis stroke="#6b7280" domain={[0, 10]} />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: '#ffffff', 
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '8px'
-                        }} 
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="pain" 
-                        stroke="#3b82f6" 
-                        strokeWidth={2}
-                        dot={{ fill: '#3b82f6', r: 4 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* Weekly Adherence */}
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle>Weekly Adherence</CardTitle>
-                  <CardDescription>Exercise completion this week</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {mockAdherenceData.map((day) => (
-                      <div key={day.day} className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{day.day}</span>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          day.completed ? 'bg-green-100' : 'bg-gray-100'
-                        }`}>
-                          {day.completed ? (
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <AlertCircle className="h-4 w-4 text-gray-400" />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Weekly Completion</span>
-                      <span className="text-sm font-medium">71%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Current Program Summary */}
-              <Card className="border-0 shadow-lg lg:col-span-2">
-                <CardHeader>
-                  <CardTitle>Current Program Summary</CardTitle>
-                  <CardDescription>Active exercise program overview</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {mockExerciseProgram.slice(0, 3).map((exercise) => (
-                      <div key={exercise.id} className="p-4 bg-gray-50 rounded-xl">
-                        <h4 className="font-medium text-gray-900 mb-2">{exercise.name}</h4>
-                        <div className="space-y-1 text-sm text-gray-600">
-                          <p>{exercise.sets} sets × {exercise.reps} reps</p>
-                          <p>{exercise.frequency}</p>
-                          <p>Difficulty: {exercise.difficulty}</p>
-                        </div>
-                        <Button variant="outline" size="sm" className="mt-3 w-full">
-                          <Play className="mr-2 h-3 w-3" />
-                          View Exercise
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {activeTab === 'program' && (
-            <div className="space-y-6">
-              <Card className="border-0 shadow-lg">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Exercise Program</CardTitle>
-                    <CardDescription>Current rehabilitation exercises</CardDescription>
-                  </div>
-                  <Button>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Modify Program
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockExerciseProgram.map((exercise) => (
-                      <div key={exercise.id} className="p-4 border border-gray-200 rounded-xl">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-medium text-gray-900">{exercise.name}</h4>
-                          <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
-                            exercise.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
-                            exercise.difficulty === 'Medium' ? 'bg-orange-100 text-orange-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {exercise.difficulty}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <p className="text-gray-600">Sets</p>
-                            <p className="font-medium">{exercise.sets}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600">Reps</p>
-                            <p className="font-medium">{exercise.reps}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600">Frequency</p>
-                            <p className="font-medium">{exercise.frequency}</p>
-                          </div>
-                        </div>
-                        <div className="flex space-x-2 mt-3">
-                          <Button variant="outline" size="sm">
-                            <Play className="mr-2 h-3 w-3" />
-                            Demo
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            Instructions
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {activeTab === 'progress' && (
-            <div className="space-y-6">
-              {/* Milestones */}
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle>Recovery Milestones</CardTitle>
-                  <CardDescription>Key achievements and goals</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockMilestones.map((milestone) => (
-                      <div key={milestone.id} className="flex items-start space-x-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          milestone.completed ? 'bg-green-100' : 'bg-gray-100'
-                        }`}>
-                          {milestone.completed ? (
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <Clock className="h-4 w-4 text-gray-400" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-medium text-gray-900">{milestone.title}</h4>
-                            <span className="text-sm text-gray-500">{milestone.date}</span>
-                          </div>
-                          <p className="text-sm text-gray-600">{milestone.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Progress Charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <CardTitle>Range of Motion Progress</CardTitle>
-                    <CardDescription>Shoulder mobility improvement</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <LineChart data={[
-                        { week: 'W1', rom: 45 },
-                        { week: 'W2', rom: 55 },
-                        { week: 'W3', rom: 65 },
-                        { week: 'W4', rom: 75 },
-                        { week: 'W5', rom: 85 },
-                        { week: 'W6', rom: 95 },
-                      ]}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis dataKey="week" stroke="#6b7280" />
-                        <YAxis stroke="#6b7280" />
-                        <Tooltip />
-                        <Line type="monotone" dataKey="rom" stroke="#10b981" strokeWidth={2} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <CardTitle>Strength Progress</CardTitle>
-                    <CardDescription>Strength measurements over time</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <BarChart data={[
-                        { week: 'W1', strength: 40 },
-                        { week: 'W2', strength: 50 },
-                        { week: 'W3', strength: 60 },
-                        { week: 'W4', strength: 70 },
-                        { week: 'W5', strength: 80 },
-                        { week: 'W6', strength: 85 },
-                      ]}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis dataKey="week" stroke="#6b7280" />
-                        <YAxis stroke="#6b7280" />
-                        <Tooltip />
-                        <Bar dataKey="strength" fill="#3b82f6" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'notes' && (
-            <div className="space-y-6">
-              <Card className="border-0 shadow-lg">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Therapist Notes</CardTitle>
-                    <CardDescription>Clinical observations and recommendations</CardDescription>
-                  </div>
-                  <Button>
-                    <FileText className="mr-2 h-4 w-4" />
-                    Add Note
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockTherapistNotes.map((note) => (
-                      <div key={note.id} className="p-4 bg-gray-50 rounded-xl">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium text-gray-900">{note.therapist}</h4>
-                          <span className="text-sm text-gray-500">{note.date}</span>
-                        </div>
-                        <p className="text-gray-700">{note.note}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+  if (loading || patientLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Se încarcă...</p>
         </div>
       </div>
-    </DashboardLayout>
-  );
+    )
+  }
+
+  if (!user || !patient) {
+    return null
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" size="sm" onClick={() => router.push('/patients')}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Înapoi
+              </Button>
+              <div className="flex items-center space-x-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
+                  <Activity className="h-5 w-5" />
+                </div>
+                <span className="text-xl font-semibold text-gray-900">KinetoFlow</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{user.user_metadata?.full_name || user.email}</p>
+                <p className="text-xs text-gray-500">{user.email}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Patient Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{patient.name}</h1>
+              <p className="text-gray-600 mt-2">Detalii pacient</p>
+            </div>
+            <div className="flex space-x-3 mt-4 sm:mt-0">
+              <Button variant="outline" onClick={() => router.push(`/patients/${patient.id}/edit`)}>
+                <Edit className="h-4 w-4 mr-2" />
+                Editează
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                {isDeleting ? 'Se șterge...' : 'Șterge'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Patient Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Informații Generale</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Nume Pacient</h4>
+                  <p className="text-lg font-medium text-gray-900">{patient.name}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">ID Pacient</h4>
+                  <p className="text-sm font-mono text-gray-700">{patient.id}</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Timestamp-uri</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Data Adăugării</h4>
+                  <p className="text-lg font-medium text-gray-900">
+                    {new Date(patient.created_at).toLocaleDateString('ro-RO', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {new Date(patient.created_at).toLocaleTimeString('ro-RO')}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Ultima Modificare</h4>
+                  <p className="text-lg font-medium text-gray-900">
+                    {new Date(patient.updated_at).toLocaleDateString('ro-RO', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {new Date(patient.updated_at).toLocaleTimeString('ro-RO')}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Acțiuni Rapide</CardTitle>
+              <CardDescription>Operațiuni comune pentru acest pacient</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Button variant="outline" className="h-20 flex-col">
+                  <Calendar className="h-6 w-6 mb-2" />
+                  <span>Programează Ședință</span>
+                </Button>
+                <Button variant="outline" className="h-20 flex-col">
+                  <Activity className="h-6 w-6 mb-2" />
+                  <span>Adaugă Notă</span>
+                </Button>
+                <Button variant="outline" className="h-20 flex-col">
+                  <Edit className="h-6 w-6 mb-2" />
+                  <span>Editează Pacient</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Notes Section */}
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle>Note și Observații</CardTitle>
+              <CardDescription>Adăugați note despre progresul pacientului</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <p className="text-gray-600 mb-4">Nu există note încă</p>
+                <Button variant="outline">
+                  <Activity className="h-4 w-4 mr-2" />
+                  Adaugă Prima Notă
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <p className="text-center text-xs text-gray-400">
+            Realizat de Otilia Stratu în cadrul proiectului ODA
+          </p>
+        </div>
+      </footer>
+    </div>
+  )
 }

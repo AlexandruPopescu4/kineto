@@ -1,258 +1,222 @@
-'use client';
+'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { 
-  mockDashboardStats, 
-  mockAdherenceData, 
-  mockRecentActivity, 
-  mockUpcomingSessions, 
-  mockAlerts 
-} from '@/mock-data/dashboard';
-import { 
-  Users, 
-  TrendingUp, 
-  AlertTriangle, 
-  Activity,
-  Calendar,
-  Clock,
-  ChevronRight,
-  Bell,
-  Info,
-  CheckCircle,
-  AlertCircle
-} from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useAuth } from '@/contexts/auth-context'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Activity, Users, LogOut, Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { createSupabaseClient } from '@/lib/supabase'
+
+export const dynamic = 'force-dynamic'
+
+interface Patient {
+  id: string
+  name: string
+  created_at: string
+}
 
 export default function DashboardPage() {
+  const { user, loading, signOut } = useAuth()
+  const router = useRouter()
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [patientsLoading, setPatientsLoading] = useState(true)
+  const supabase = createSupabaseClient()
+
+  useEffect(() => {
+    if (!user && !loading) {
+      router.push('/login')
+    }
+  }, [user, loading, router])
+
+  useEffect(() => {
+    if (user) {
+      fetchPatients()
+    }
+  }, [user])
+
+  const fetchPatients = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching patients:', error)
+      } else {
+        setPatients(data || [])
+      }
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setPatientsLoading(false)
+    }
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+    router.push('/login')
+  }
+
+  if (loading || patientsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Se încarcă...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
+
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Page Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Panou de Control</h1>
-          <p className="text-gray-600 mt-2">Bine ați revenit! Iată o imagine de ansamblu a practicii dumneavoastră.</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
+                <Activity className="h-5 w-5" />
+              </div>
+              <span className="text-xl font-semibold text-gray-900">KinetoFlow</span>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{user.user_metadata?.full_name || user.email}</p>
+                <p className="text-xs text-gray-500">{user.email}</p>
+              </div>
+              <Button onClick={handleSignOut} variant="outline" size="sm">
+                <LogOut className="h-4 w-4 mr-2" />
+                Deconectare
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Panou de control</h1>
+          <p className="text-gray-600 mt-2">
+            Bun venit, {user.user_metadata?.full_name || 'utilizator'}! Iată o imagine de ansamblu a practicii dumneavoastră.
+          </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Pacienți Activi</CardTitle>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-sm font-medium text-gray-600">Pacienți Total</CardTitle>
               <Users className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{mockDashboardStats.activePatients}</div>
-              <p className="text-xs text-gray-600 mt-1">
-                <span className="text-green-600">+3</span> față de luna trecută
-              </p>
+              <div className="text-2xl font-bold text-gray-900">{patients.length}</div>
+              <p className="text-xs text-gray-500">Pacienți înregistrați</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Rată Aderență</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-600" />
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-sm font-medium text-gray-600">Adăugați Luna Aceasta</CardTitle>
+              <Activity className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{mockDashboardStats.adherenceRate}%</div>
-              <p className="text-xs text-gray-600 mt-1">
-                <span className="text-green-600">+5%</span> față de săptămâna trecută
-              </p>
+              <div className="text-2xl font-bold text-gray-900">
+                {patients.filter(p => {
+                  const createdAt = new Date(p.created_at)
+                  const now = new Date()
+                  return createdAt.getMonth() === now.getMonth() && createdAt.getFullYear() === now.getFullYear()
+                }).length}
+              </div>
+              <p className="text-xs text-gray-500">Pacienți noi</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Pacienți la Risc</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-orange-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{mockDashboardStats.atRiskPatients}</div>
-              <p className="text-xs text-gray-600 mt-1">
-                <span className="text-orange-600">Necesită atenție</span>
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Reducere Medie a Durerii</CardTitle>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-sm font-medium text-gray-600">Status Cont</CardTitle>
               <Activity className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{mockDashboardStats.averagePainReduction}</div>
-              <p className="text-xs text-gray-600 mt-1">
-                <span className="text-green-600">-0.8</span> puncte în luna aceasta
-              </p>
+              <div className="text-2xl font-bold text-gray-900">Activ</div>
+              <p className="text-xs text-gray-500">Cont verificat</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Charts and Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Adherence Chart */}
-          <Card className="border-0 shadow-lg lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Evoluția Săptămânală a Aderenței</CardTitle>
-              <CardDescription>Rata de completare a exercițiilor în ultima săptămână</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={mockAdherenceData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="date" stroke="#6b7280" />
-                  <YAxis stroke="#6b7280" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#ffffff', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px'
-                    }} 
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="rate" 
-                    stroke="#3b82f6" 
-                    strokeWidth={2}
-                    dot={{ fill: '#3b82f6', r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card className="border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>Activitate Recentă</CardTitle>
-              <CardDescription>Actualizări recente ale pacienților</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {mockRecentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3">
-                  <div className={`w-2 h-2 rounded-full mt-2 ${
-                    activity.type === 'exercise' ? 'bg-blue-500' :
-                    activity.type === 'pain' ? 'bg-green-500' :
-                    activity.type === 'note' ? 'bg-purple-500' : 'bg-orange-500'
-                  }`}></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900">{activity.activity}</p>
-                    <p className="text-xs text-gray-500">{activity.patientName}</p>
-                    <p className="text-xs text-gray-400">{activity.timestamp}</p>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Bottom Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Upcoming Sessions */}
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Ședințe Programate</CardTitle>
-                <CardDescription>Programările viitoare</CardDescription>
-              </div>
-              <Button variant="ghost" size="sm">
-                Vezi Toate
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {mockUpcomingSessions.map((session) => (
-                <div key={session.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Calendar className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{session.patientName}</p>
-                      <p className="text-sm text-gray-600">{session.type}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">{session.time}</p>
-                    <p className="text-xs text-gray-500">{session.date}</p>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Alerts */}
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Alerte și Notificări</CardTitle>
-                <CardDescription>Actualizări importante care necesită atenție</CardDescription>
-              </div>
-              <Button variant="ghost" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {mockAlerts.map((alert) => (
-                <div key={alert.id} className={`flex items-start space-x-3 p-3 rounded-xl ${
-                  alert.type === 'warning' ? 'bg-orange-50' :
-                  alert.type === 'info' ? 'bg-blue-50' : 'bg-green-50'
-                }`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    alert.type === 'warning' ? 'bg-orange-200' :
-                    alert.type === 'info' ? 'bg-blue-200' : 'bg-green-200'
-                  }`}>
-                    {alert.type === 'warning' ? (
-                      <AlertCircle className="h-4 w-4 text-orange-600" />
-                    ) : alert.type === 'info' ? (
-                      <Info className="h-4 w-4 text-blue-600" />
-                    ) : (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900">{alert.message}</p>
-                    {alert.patientName && (
-                      <p className="text-xs text-gray-600">{alert.patientName}</p>
-                    )}
-                    <p className="text-xs text-gray-500">{alert.timestamp}</p>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle>Acțiuni Rapide</CardTitle>
-            <CardDescription>Sarcini utilizate frecvent</CardDescription>
+        {/* Patients Section */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Pacienți Recenți</CardTitle>
+              <CardDescription>Ultimele pacienți adăugați</CardDescription>
+            </div>
+            <Button onClick={() => router.push('/patients/new')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Adaugă Pacient
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <Users className="h-6 w-6" />
-                <span className="text-sm">Adaugă Pacient</span>
-              </Button>
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <Calendar className="h-6 w-6" />
-                <span className="text-sm">Programează Ședință</span>
-              </Button>
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <Activity className="h-6 w-6" />
-                <span className="text-sm">Creează Program</span>
-              </Button>
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <Clock className="h-6 w-6" />
-                <span className="text-sm">Vezi Rapoarte</span>
-              </Button>
-            </div>
+            {patients.length === 0 ? (
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Nu aveți pacienți încă</h3>
+                <p className="text-gray-600 mb-4">Începeți prin a adăuga primul pacient</p>
+                <Button onClick={() => router.push('/patients/new')}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Adaugă Primul Pacient
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {patients.slice(0, 5).map((patient) => (
+                  <div key={patient.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <h4 className="font-medium text-gray-900">{patient.name}</h4>
+                      <p className="text-sm text-gray-500">
+                        Adăugat la {new Date(patient.created_at).toLocaleDateString('ro-RO')}
+                      </p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => router.push(`/patients/${patient.id}`)}
+                    >
+                      Vezi Detalii
+                    </Button>
+                  </div>
+                ))}
+                {patients.length > 5 && (
+                  <div className="text-center pt-4">
+                    <Button variant="outline" onClick={() => router.push('/patients')}>
+                      Vezi Toți Pacienții ({patients.length})
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
-      </div>
-    </DashboardLayout>
-  );
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <p className="text-center text-xs text-gray-400">
+            Realizat de Otilia Stratu în cadrul proiectului ODA
+          </p>
+        </div>
+      </footer>
+    </div>
+  )
 }
