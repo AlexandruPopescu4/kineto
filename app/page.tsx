@@ -1,24 +1,28 @@
 'use client'
 
-import { useAuth } from '@/contexts/auth-context'
+import { useAuth } from '@/contexts/role-auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
 export const dynamic = 'force-dynamic'
 
 export default function HomePage() {
-  const { user, loading } = useAuth()
+  const { user, loading, isAuthenticated, isTherapist, isPatient } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
     if (!loading) {
-      if (user) {
-        router.push('/dashboard')
+      if (isAuthenticated) {
+        if (isTherapist) {
+          router.push('/therapist')
+        } else if (isPatient) {
+          router.push('/pacient')
+        }
       } else {
         router.push('/login')
       }
     }
-  }, [user, loading, router])
+  }, [user, loading, router, isAuthenticated, isTherapist, isPatient])
 
   if (loading) {
     return (
